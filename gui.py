@@ -1,5 +1,6 @@
 from pull_in import *
-from ipywidgets import RadioButtons,BoundedFloatText,IntRangeSlider,IntSlider,Button,BoundedIntText,ToggleButtons,FileUpload,VBox,HBox,Layout,Image,Output,Checkbox,Tab,FloatSlider,Text
+from ipywidgets import RadioButtons,BoundedFloatText,IntRangeSlider,IntSlider,Button,BoundedIntText,ToggleButtons\
+                        ,FileUpload,VBox,HBox,Layout,Image,Output,Checkbox,Tab,FloatSlider,Text, Accordion
 from matplotlib.backends.backend_pdf import PdfPages #For printing to PDF
 import functools #In order to have arguments in callback functions
 import pandas as pd
@@ -125,18 +126,21 @@ exportCheckBoxes = VBox(children = [exportSidePlotCB, exportTopPlotCB, exportTen
 plotCheckBoxes = VBox(children = [axisEqCB, arrowCB, plotCenterCB, HBox(children=[annotateCB, annotationOffsetFS])])
 #exportBox = VBox(children = [exportBtn,outPDF])
 #fileBox = VBox(children=[exportCheckBoxes,exportPdfBtn, exportFilesBtn, outPDF])
-fileBox = VBox(children=[exportCheckBoxes, fileNameTxt, exportFilesBtn, outPDF])
-optionsTab = HBox(children = [tableOrientationRB, units_RB, plotCheckBoxes, fileBox],
+fileBox = VBox(children=[fileNameTxt, exportFilesBtn, outPDF])
+
+optionsTab = HBox(children = [tableOrientationRB, units_RB, plotCheckBoxes],
                          layout=Layout(display='flex', flex_flow='row', justify_content='flex-start', align_items='center', flex='0 1 auto'))
 plotCheckBoxes.layout = Layout(display = 'flex', justify_content = 'space-between')
 for w in plotCheckBoxes.children: w.layout = Layout(width = 'auto', flex = '1 1 auto')
 for w in fileBox.children: w.layout = Layout(width = 'auto', flex = '1 1 auto')
+
+exportTab =HBox(children=[exportCheckBoxes, fileBox])
 #endregion
 
 # Collect widgets
 #region
-tabTitles = ['Geometry','Global Parameters','Options']
-tab = Tab(children = [sectionTab,globalParamTab,optionsTab])
+tabTitles = ['Geometry','Global Parameters','Options','Export']
+tab = Tab(children = [sectionTab, globalParamTab, optionsTab, exportTab])
 tab.layout.width = '100%'
 [tab.set_title(i, title) for i, title in enumerate(tabTitles)]
 
