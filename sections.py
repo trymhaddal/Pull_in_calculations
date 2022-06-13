@@ -1,4 +1,4 @@
-from msilib.schema import Error
+#from msilib.schema import Error
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.pyplot import text
@@ -63,7 +63,7 @@ def unitVector(dim):
     if dim==0:   return np.array([1,0,0])
     elif dim==1: return np.array([0,1,0])
     elif dim==2: return np.array([0,0,1])
-    else: Error('dim must be 0, 1 or 2')
+ #   else: Error('dim must be 0, 1 or 2')
     
 class Section:
     def __init__(self,isWet,surfType,globalVars):
