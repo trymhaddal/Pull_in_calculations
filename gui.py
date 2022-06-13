@@ -148,14 +148,11 @@ ui = VBox(children = [topBox, outText, bottomBox])
 imgFile = open('nexans_logo.png', 'rb')
 imageWidget = Image(value=imgFile.read(), format='png', width=300, height=300)
 
-# display(imageWidget)
-# display(ui)
 #endregion
 
 # Functions
 
 def compileSectionFromGUI(pi,index=-1): #Compiles a Section object with widget values
-    with outDebug: print('compileSectionFromGUI')
     psiOutVec = pi.getOutputYawData() #In radians
     psiInVec = pi.getInputYawData()
     if index == -1: yaw_in = np.rad2deg(psiOutVec[-1]) #Append to end
@@ -176,29 +173,12 @@ def compileSectionFromGUI(pi,index=-1): #Compiles a Section object with widget v
     return sec
 
 def updateSectionOutput(pi):
-    with outDebug: print('updateSectionOutput')
     df = generateDataframe(pi) if (units_RB.value==UnitType.METRIC) else generateDataframeWithImperial(pi)
     if tableOrientationRB.value==TableOrientation.VERTICAL: df = df.transpose()
     with outText: clear_output()
     with outText: display(df)
 
 def generateDataframe(pi): #Pandas dataframe
-    # dataDic = {
-    #     'Type'       : [sec.getSectionTypeString() for sec in pi.sections],
-    #     'W/D'        : ['Wet' if sec.isWet else 'Dry' for sec in pi.sections],
-    #     'P/R'        : ['Pipe' if sec.type==SectionType.PIPE else 'Roller' for sec in pi.sections],
-    #     'R [m]'      : [printableRadius(sec.R) for sec in pi.sections],
-    #     'θ_in [deg]' : [round(np.rad2deg(sec.theta_in)) for sec in pi.sections],
-    #     'θ_out [deg]': [round(np.rad2deg(sec.theta_out)) for sec in pi.sections],
-    #     'Ψ_in [deg]' : [round(np.rad2deg(sec.psi_in)) for sec in pi.sections],
-    #     'Ψ_out [deg]': [round(np.rad2deg(sec.psi_out)) for sec in pi.sections],
-    #     'μ_s [-]'    : [sec.mu for sec in pi.sections],
-    #     'w [kg/m]'   : [sec.rho for sec in pi.sections],
-    #     'L [m]'      : [round(sec.length(),1) for sec in pi.sections],
-    #     'T_in [kN]'  : [round(T_in/1000,1) for T_in in pi.T_inputs],
-    #     'T_sec [kN]' : [round((T_out-T_in)/1000,1) for T_in,T_out in zip(pi.T_inputs,pi.T_outputs)],
-    #     'T_out [kN]' : [round(T_out/1000,1) for T_out in pi.T_outputs]
-    # }
 
     dataDic = {
         'Type'       : [sec.getSectionTypeString() for sec in pi.sections],
@@ -245,7 +225,6 @@ def generateDataframeWithImperial(pi): #Pandas dataframe
     return pd.DataFrame(data=dataDic, index=indices)
 
 def updateGUIplots(pi):
-    with outDebug: print('updateGUIplots')
     with outGeoSide: clear_output()
     with outGeoTop: clear_output()
     with outTension: clear_output()
@@ -288,7 +267,6 @@ def create_download_link(filename, title = 'Download'):  #No idea what goes on h
     return HTML(html)
 
 def suggestNextSectionInput(pi): #Suggests next angle input based on previous section
-    with outDebug: print('suggestNextSectionInput')
     if len(pi.sections)>0: #Check for empty list
         sec = pi.sections[-1]
         theta_out = round( np.rad2deg( -sec.theta_out if type(sec)==TopBend else sec.theta_out ) ,1) #Mirror if TopBend, convert to deg and round to one decimal point
@@ -334,8 +312,6 @@ def changeGeometrySpecificationUI(obj,pi):
     suggestNextSectionInput(pi)
 
 def addSection_callback(obj,pi):
-    with outDebug: print(obj)
-    with outDebug: print('addSection_callback')
     s = compileSectionFromGUI(pi)
     pi.addSection(s)
     editSecBtn.disabled = False
@@ -356,19 +332,15 @@ def editSection_callback(obj,pi):
     obj.observe(functools.partial(adjustWidgetWithSectionSpecifyer,pi),names='value') #Avoiding interference issues between the widgets
 
 def updateSection_callback(obj,pi):
-    with outText: print('updateSection_callback 1')
     editSecNum_BIT.unobserve(functools.partial(adjustWidgetWithSectionSpecifyer,pi)) #To avoid observe callback function to trigger by disabling editSecNum_BIT
-    with outText: print('updateSection_callback 2')
     for w in editList: w.disabled = True
     editSecNum_BIT.observe(functools.partial(adjustWidgetWithSectionSpecifyer,pi),names='value')
     addSecBtn.disabled = False
     editSecBtn.disabled = False
     secIndex = editSecNum_BIT.value - 1
-    with outText: print('updateSection_callback 3')
     replacementSec = compileSectionFromGUI(pi,index=secIndex)
     pi.updateSection(replacementSec,secIndex)
     pi.updateGeometry()
-    with outText: print('updateSection_callback 4')
     updateSectionOutput(pi)
     updateGUIplots(pi)
 
@@ -385,8 +357,6 @@ def deleteSection_callback(obj,pi):
 
 def adjustWidgetWithSectionSpecifyer(obj,pi):
     secIndex = editSecNum_BIT.value - 1
-    with outText: print('adjustWidgetWithSectionSpecifyer ',secIndex)
-    #secIndex = btn.value - 1
     sec = pi.sections[secIndex]
     isWet_RB.value = sec.isWet
     Material_RB.value = sec.surfType

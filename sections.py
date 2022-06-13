@@ -375,7 +375,6 @@ class BottomBend(VerticalBend):
         return roots
     
     def T_vec(self,inputTension):
-        print('T_vec called')
         self.theta_crits = self.thetaHangoff(inputTension) #gives two roots which may be outside theta_range
         if len(self.theta_crits) == 0:
             return self.T_top(inputTension,self.theta_in,self.thetaVec)

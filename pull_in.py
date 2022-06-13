@@ -204,7 +204,6 @@ class Pull_in:
         return L_points
     
     def plotMinTensionAlongCable(self):
-        #print(len(self.L),len(self.T))
         plt.figure(3)
         plt.plot(self.L,self.T/1000,'k')
         plt.xlabel('Length along cable [m]')
