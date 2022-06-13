@@ -75,7 +75,6 @@ class Pull_in:
             return [0]
 
     def getOutputYawData(self): #Calculates vector of input yaw for each section by summnig horizontal section contributions
-        print('getOutputYawData')
         return np.cumsum(self.getYawDiffs())
     
     def getInputYawData(self):
