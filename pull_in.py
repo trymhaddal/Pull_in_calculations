@@ -181,7 +181,7 @@ class Pull_in:
         self.sections[0].plotInputTensionArrowTop(self.p0s[0]) #Input tension vector
         self.sections[-1].plotOutputTensionArrowTop(self.p0s[-1]) #Output tension vector. Inputtension for scale
     
-    def plot3dGeometry(self):
+    def plot3dGeometry(self):   
         plt.figure(5)
         ax = plt.axes(projection='3d')
         index = 0

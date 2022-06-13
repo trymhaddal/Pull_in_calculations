@@ -130,6 +130,7 @@ optionsTab = HBox(children = [tableOrientationRB, units_RB, plotCheckBoxes, file
                          layout=Layout(display='flex', flex_flow='row', justify_content='flex-start', align_items='center', flex='0 1 auto'))
 plotCheckBoxes.layout = Layout(display = 'flex', justify_content = 'space-between')
 for w in plotCheckBoxes.children: w.layout = Layout(width = 'auto', flex = '1 1 auto')
+for w in fileBox.children: w.layout = Layout(width = 'auto', flex = '1 1 auto')
 #endregion
 
 # Collect widgets
