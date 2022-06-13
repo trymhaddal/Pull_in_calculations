@@ -1,3 +1,4 @@
+from matplotlib.pyplot import annotate
 from sections import *
 
 GP_BEND = 500 #Number of gridpoints in a bend
@@ -208,8 +209,7 @@ class Pull_in:
         plt.plot(self.L,self.T/1000,'k')
         plt.xlabel('Length along cable [m]')
         plt.ylabel('Tension [kN]')
-        [plt.axvline(L_ho, color='g',linestyle='-.') for L_ho in self.tensionHangofPoints()] #Plot vertical lines for hangoffs
         [plt.axvline(sepLen, color='k',linestyle='--') for sepLen in self.sectionSeparatorLengths()] #Plot vertical sep lines
-        for L_ho in self.tensionHangofPoints():
-            text(L_ho, max(self.T)*0.98, r'$L_{ho}$ = %.2f' % L_ho, rotation=90, va='top', ha='right',color='g') #Text for hangoff point vlines
+        [plt.axvline(L_ho, color='r',linestyle='-.') for L_ho in self.tensionHangofPoints()] #Plot vertical lines for hangoffs
+        [plt.annotate(text=r'$L_{{ho}}$ = {:.2f} m'.format(L_ho), xy=(L_ho, max(self.T/1000)*0.98), rotation=90, va='top', ha='right',color='r') for L_ho in self.tensionHangofPoints()] #Text for hangoff point vlines
         plt.title('Tension along cable')
