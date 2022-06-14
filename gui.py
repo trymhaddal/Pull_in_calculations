@@ -400,15 +400,11 @@ def pandasTable2Matplotlib(df):
 #Callback functions
 def changeGeometrySpecificationUI(obj,pi):
     if geometry_RB.value == Straight:
-        # secVarOptions.children = [horDisp_BFT, vertDisp_BFT]
-        # sectionHBox.children = [ isWet_RB, Material_RB, geometry_RB, horDisp_BFT, vertDisp_BFT] 
         if inputCoordsTypeTB.value == CoordinateSystemType.CARTESIAN:
             secVarOptions.children = [VBox(children= [horDisp_BFT, vertDisp_BFT]),inputCoordsTypeTB]
-            #secVarOptions.children = [cartesianBox, inputCoordsTypeTB]
             sectionHBox.children = [ isWet_RB, Material_RB, geometry_RB, horDisp_BFT, vertDisp_BFT] 
         else:
             secVarOptions.children = [VBox(children= [angle_BFT, length_BFT]), inputCoordsTypeTB]
-            #secVarOptions.children = [polarBox, inputCoordsTypeTB]
             sectionHBox.children = [ isWet_RB, Material_RB, geometry_RB, angle_BFT, length_BFT] 
     elif geometry_RB.value == HorizontalBend:
         secVarOptions.children = [rad_BFT, psi_IS]
@@ -416,7 +412,7 @@ def changeGeometrySpecificationUI(obj,pi):
     else:
         secVarOptions.children = [rad_BFT, thetaRange_FRS]
         sectionHBox.children = [isWet_RB, Material_RB, geometry_RB, rad_BFT, thetaRange_FRS]
-    suggestNextSectionInput(pi)
+    if editSecBtn.disabled==False: suggestNextSectionInput(pi) #Do not suggest if in edit mode
 
 def addSection_callback(obj,pi):
     s = compileSectionFromGUI(pi)
@@ -427,15 +423,14 @@ def addSection_callback(obj,pi):
     suggestNextSectionInput(pi)
 
 def editSection_callback(obj,pi):
+    adjustWidgetWithSectionSpecifyer(obj,pi)
     editSecBtn.disabled = True
     addSecBtn.disabled = True
     deleteScnBtn.disabled = False
     updateScnBtn.disabled = False
-    #editSecNum_BIT.unobserve(adjustWidgetWithSectionSpecifyer) #Avoiding interference issues between the widgets
     obj.unobserve(functools.partial(adjustWidgetWithSectionSpecifyer,pi)) #Avoiding interference issues between the widgets
     editSecNum_BIT.max = len(pi.sections)
     editSecNum_BIT.disabled = False
-    #editSecNum_BIT.observe(adjustWidgetWithSectionSpecifyer)
     obj.observe(functools.partial(adjustWidgetWithSectionSpecifyer,pi),names='value') #Avoiding interference issues between the widgets
 
 def updateSection_callback(obj,pi):
@@ -471,6 +466,8 @@ def adjustWidgetWithSectionSpecifyer(obj,pi):
     if type(sec) == Straight:
         horDisp_BFT.value = sec.horDisp
         vertDisp_BFT.value = sec.vertDisp
+        angle_BFT.value = np.rad2deg(sec.theta_out)
+        length_BFT.value = sec.length()
     else:
         rad_BFT.value = sec.R
         thetaRange_FRS.value = [np.rad2deg(sec.theta_in),np.rad2deg(sec.theta_out)]
