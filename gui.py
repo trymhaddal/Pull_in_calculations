@@ -108,7 +108,10 @@ arrowCB = Checkbox(description='Show arrows', disabled=False, value=True, indent
 annotateCB = Checkbox(description='Index Labels', disabled=False, value=True, indent=False)
 #saveCsvBtn = Button(description='Save csv', disabled=False, icon='file-text-o', button_style='success')
 annotationOffsetFS = FloatSlider(value = 1.0, min=0, max=5, step=0.5, description = 'Text offset', style = wStyle)
-units_RB = RadioButtons(options = [('Metric',UnitType.METRIC),('Imperial (metric)',UnitType.BOTH)])
+units_RB = RadioButtons(options = [('Metric',UnitType.METRIC),
+                                   ('Metric (Imperial)',UnitType.METRIC_IMPERIAL),
+                                   ('Imperial (Metric)',UnitType.IMPERIAL_METRIC),
+                                   ('Imperial',UnitType.IMPERIAL)])
 annotationOffsetFS = FloatSlider(description = 'Text offset [m]', value = 1.0, min=-5, max=5, step=0.5, style = wStyle)
 tableOrientationRB = RadioButtons(options = [('Horizontal',TableOrientation.HORIZONTAL),('Vertical',TableOrientation.VERTICAL)])
 plotCenterCB = Checkbox(description='Plot bend centers', disabled=False, value=False, indent=False)
@@ -178,12 +181,23 @@ def compileSectionFromGUI(pi,index=-1): #Compiles a Section object with widget v
     return sec
 
 def updateSectionOutput(pi):
-    df = generateDataframe(pi) if (units_RB.value==UnitType.METRIC) else generateDataframeWithImperial(pi)
+    df = generateDataframe(pi)
     if tableOrientationRB.value==TableOrientation.VERTICAL: df = df.transpose()
     with outText: clear_output()
     with outText: display(df)
 
-def generateDataframe(pi): #Pandas dataframe
+def generateDataframe(pi): #Generates a dataframe with correct units according to UnitType
+    if (units_RB.value==UnitType.METRIC):
+        df = generateDataframeMetric(pi)
+    elif (units_RB.value==UnitType.METRIC_IMPERIAL):
+        df = generateDataframeMetricImperial(pi)
+    elif (units_RB.value==UnitType.IMPERIAL_METRIC):
+        df = generateDataframeImperialMetric(pi)
+    elif (units_RB.value==UnitType.IMPERIAL):
+        df = generateDataframeImperial(pi)
+    return df
+
+def generateDataframeMetric(pi): #Pandas dataframe
 
     dataDic = {
         'Type'       : [sec.getSectionTypeString() for sec in pi.sections],
@@ -206,7 +220,30 @@ def generateDataframe(pi): #Pandas dataframe
     #df = pd.DataFrame(data=dataDic, index=indices)
     return pd.DataFrame(data=dataDic, index=indices)
 
-def generateDataframeWithImperial(pi): #Pandas dataframe
+def generateDataframeMetricImperial(pi): #Pandas dataframe
+    kg2lb = 2.2046 #1 kg to lb
+    m2ft = 3.281 #1 m to ft
+    N2lbf = 0.2248 #1 N to lbf
+    dataDic = {
+        'Type'             : [sec.getSectionTypeString() for sec in pi.sections],
+        'W/D'              : ['Wet' if sec.isWet else 'Dry' for sec in pi.sections],
+        'P/R'              : ['Pipe' if sec.surfType==SurfaceType.PIPE else 'Roller' for sec in pi.sections],
+        'R [ft (m)]'       : ['\u221e' if np.isinf(sec.R) else '{:.1f} ({:.1f})'.format(sec.R*m2ft,sec.R) for sec in pi.sections],
+        'θ_in [deg]'       : ['{:.1f}'.format(np.rad2deg(sec.theta_in)) for sec in pi.sections],
+        'θ_out [deg]'      : ['{:.1f}'.format(np.rad2deg(sec.theta_out)) for sec in pi.sections],
+        'Ψ_in [deg]'       : ['{:.1f}'.format(np.rad2deg(sec.psi_in)) for sec in pi.sections],
+        'Ψ_out [deg]'      : ['{:.1f}'.format(np.rad2deg(sec.psi_out)) for sec in pi.sections],
+        'μ_s [-]'          : ['{:.2f}'.format(sec.mu) for sec in pi.sections],
+        'w [kg/m  (lbf/ft)]': ['{:.1f} ({:.1f})'.format(sec.rho, sec.rho*kg2lb/m2ft) for sec in pi.sections],
+        'L [m (ft)]'       : ['{:.1f} ({:.1f})'.format(sec.length(),sec.length()*m2ft) for sec in pi.sections],
+        'T_in [kN (kip)]' : ['{:.1f} ({:.1f})'.format(T_in/1000,T_in*N2lbf/1000) for T_in in pi.T_inputs],
+        'T_sec [kN (kip)]': ['{:.1f} ({:.1f})'.format((T_out-T_in)/1000,(T_out-T_in)*N2lbf/1000) for T_in,T_out in zip(pi.T_inputs,pi.T_outputs)],
+        'T_out [kN (kip)]': ['{:.1f} ({:.1f})'.format(T_out/1000,T_out*N2lbf/1000) for T_out in pi.T_outputs]
+    }
+    indices = [i for i in range(1,len(pi.sections)+1)]
+    return pd.DataFrame(data=dataDic, index=indices)
+    
+def generateDataframeImperialMetric(pi): #Pandas dataframe
     kg2lb = 2.2046 #1 kg to lb
     m2ft = 3.281 #1 m to ft
     N2lbf = 0.2248 #1 N to lbf
@@ -222,9 +259,32 @@ def generateDataframeWithImperial(pi): #Pandas dataframe
         'μ_s [-]'          : ['{:.2f}'.format(sec.mu) for sec in pi.sections],
         'w [lbf/ft (kg/m)]': ['{:.1f} ({:.1f})'.format(sec.rho*kg2lb/m2ft, sec.rho) for sec in pi.sections],
         'L [ft (m)]'       : ['{:.1f} ({:.1f})'.format(sec.length()*m2ft,sec.length()) for sec in pi.sections],
-        'T_in [klbf (kN)]' : ['{:.1f} ({:.1f})'.format(T_in*N2lbf/1000,T_in/1000) for T_in in pi.T_inputs],
-        'T_sec [klbf (kN)]': ['{:.1f} ({:.1f})'.format((T_out-T_in)*N2lbf/1000,(T_out-T_in)/1000) for T_in,T_out in zip(pi.T_inputs,pi.T_outputs)],
-        'T_out [klbf (kN)]': ['{:.1f} ({:.1f})'.format(T_out*N2lbf/1000,T_out/1000) for T_out in pi.T_outputs]
+        'T_in [kip (kN)]'  : ['{:.1f} ({:.1f})'.format(T_in*N2lbf/1000,T_in/1000) for T_in in pi.T_inputs],
+        'T_sec [kip (kN)]' : ['{:.1f} ({:.1f})'.format((T_out-T_in)*N2lbf/1000,(T_out-T_in)/1000) for T_in,T_out in zip(pi.T_inputs,pi.T_outputs)],
+        'T_out [kip (kN)]' : ['{:.1f} ({:.1f})'.format(T_out*N2lbf/1000,T_out/1000) for T_out in pi.T_outputs]
+    }
+    indices = [i for i in range(1,len(pi.sections)+1)]
+    return pd.DataFrame(data=dataDic, index=indices)
+
+def generateDataframeImperial(pi): #Pandas dataframe
+    kg2lb = 2.2046 #1 kg to lb
+    m2ft = 3.281   #1 m to ft
+    N2lbf = 0.2248 #1 N to lbf
+    dataDic = {
+        'Type'        : [sec.getSectionTypeString() for sec in pi.sections],
+        'W/D'         : ['Wet' if sec.isWet else 'Dry' for sec in pi.sections],
+        'P/R'         : ['Pipe' if sec.surfType==SurfaceType.PIPE else 'Roller' for sec in pi.sections],
+        'R [ft]'      : ['\u221e' if np.isinf(sec.R) else '{:.1f} ({:.1f})'.format(sec.R*m2ft,sec.R) for sec in pi.sections],
+        'θ_in [deg]'  : ['{:.1f}'.format(np.rad2deg(sec.theta_in)) for sec in pi.sections],
+        'θ_out [deg]' : ['{:.1f}'.format(np.rad2deg(sec.theta_out)) for sec in pi.sections],
+        'Ψ_in [deg]'  : ['{:.1f}'.format(np.rad2deg(sec.psi_in)) for sec in pi.sections],
+        'Ψ_out [deg]' : ['{:.1f}'.format(np.rad2deg(sec.psi_out)) for sec in pi.sections],
+        'μ_s [-]'     : ['{:.2f}'.format(sec.mu) for sec in pi.sections],
+        'w [lbf/ft]'  : ['{:.1f}'.format(sec.rho*kg2lb/m2ft) for sec in pi.sections],
+        'L [ft]'      : ['{:.1f}'.format(sec.length()*m2ft) for sec in pi.sections],
+        'T_in [kip]'  : ['{:.1f}'.format(T_in*N2lbf/1000) for T_in in pi.T_inputs],
+        'T_sec [kip]' : ['{:.1f}'.format((T_out-T_in)*N2lbf/1000) for T_in,T_out in zip(pi.T_inputs,pi.T_outputs)],
+        'T_out [kip]' : ['{:.1f}'.format(T_out*N2lbf/1000) for T_out in pi.T_outputs]
     }
     indices = [i for i in range(1,len(pi.sections)+1)]
     return pd.DataFrame(data=dataDic, index=indices)
@@ -449,7 +509,7 @@ def exportFiles(obj,pi): #Creates one pdf of desired plots and one HTML object o
 
     export2pdf(obj,pi,filenamePDF)
 
-    df = generateDataframe(pi) if (units_RB.value==UnitType.METRIC) else generateDataframeWithImperial(pi)
+    df = generateDataframe(pi)
     exportTable2HTML(df, filenameHTML)
     with outPDF: 
         if any([exportSidePlotCB.value,exportTopPlotCB.value,exportTensionPlotCB.value]): display(create_download_link(filenamePDF,title=filenamePDF))
@@ -458,7 +518,7 @@ def exportFiles(obj,pi): #Creates one pdf of desired plots and one HTML object o
 def export2separateFiles(obj,pi): #Creates files separately
     with outPDF: clear_output()
 
-    df = generateDataframe(pi) if (units_RB.value==UnitType.METRIC) else generateDataframeWithImperial(pi)
+    df = generateDataframe(pi)
     exportTable2HTML(df)
 
     pi.plotTopGeometry()

@@ -14,7 +14,9 @@ class SurfaceType(Enum):
 
 class UnitType(Enum):
     METRIC = 1
-    BOTH = 2
+    IMPERIAL_METRIC = 2
+    METRIC_IMPERIAL = 3
+    IMPERIAL = 4
 
 class CoordinateSystemType(Enum):
     CARTESIAN = 1
