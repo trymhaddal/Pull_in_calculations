@@ -1,5 +1,5 @@
 # Pull_in_calculations
-This is a web-based application for generalized pull-in calculations. To launch, click this button:[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/trymhaddal/Pull_in_calculations/HEAD?urlpath=voila%2Frender%2Fmain.ipynb)
+This is a web-based application for generalized pull-in calculations. To launch, click this button: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/trymhaddal/Pull_in_calculations/HEAD?urlpath=voila%2Frender%2Fmain.ipynb)
 
 Note that it might take half a minute or so to lauch. Also, the application will time out if inactive for more than 15 minutes.
 
