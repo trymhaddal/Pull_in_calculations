@@ -1,5 +1,5 @@
 from pull_in import *
-from ipywidgets import RadioButtons,BoundedFloatText,IntRangeSlider,IntSlider,Button,BoundedIntText,ToggleButtons\
+from ipywidgets import RadioButtons,BoundedFloatText,FloatRangeSlider,IntSlider,Button,BoundedIntText,ToggleButtons\
                         ,FileUpload,VBox,HBox,Layout,Image,Output,Checkbox,Tab,FloatSlider,Text, Accordion
 from matplotlib.backends.backend_pdf import PdfPages #For printing to PDF
 import functools #In order to have arguments in callback functions
@@ -64,7 +64,7 @@ vertDisp_BFT = BoundedFloatText(value=5, min=-100 , max=100, description = 'Vert
 angle_BFT = BoundedFloatText(value=45, min=-90, max=90, step = 1, description = 'Angle [deg]',style = wStyle)
 length_BFT = BoundedFloatText(value=5, min=0 , max=100, description = 'Length [m]',style = wStyle)
 rad_BFT = BoundedFloatText(value=5, min=0 ,max=2000, description = 'Bend radius [m]',style = wStyle)
-thetaRange_FRS = IntRangeSlider(value=[-45, 45], min=-90, max=90, step=1, description = 'Pitch range [deg]',style = wStyle)
+thetaRange_FRS = FloatRangeSlider(value=[-45, 45], min=-90, max=90, step=1, description = 'Pitch range [deg]',style = wStyle, readout_format='.1f')
 psi_IS = IntSlider(value = 0, min=-90, max=90, step=5, description = 'Delta Yaw [deg]', style = wStyle)
 addSecBtn = Button(description='Add section', disabled=False, icon='check', button_style='info')
 editSecBtn = Button(description='Edit section', disabled=True, icon='edit', button_style='primary')
