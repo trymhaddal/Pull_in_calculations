@@ -14,4 +14,5 @@ There are four tabs; one for the geometry, one for controlling global parameters
 - In the Export tab, the user can tick the desired outputs to generate and create a custom filename. By clicking the button "Generate files", the program will generate these outputs. Note that this does not actually download the documents, but rather generates download links under to the button after a few seconds. Download by simply clicking the links and saving.
 
 # Known Issues
-- If you input a number by text, the widget does not update until you press enter. Therefore, "Add section" or "Update section" will use the previous widget value. Therefore, make sure to always press enter after inputting number by text
+- Section output does not match input
+-   This is likely due to the widget not updating with text input until you press enter. Therefore, make sure to press enter before "Add section" or "Update section" if you entered numbers by text
