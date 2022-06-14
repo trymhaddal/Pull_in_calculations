@@ -47,12 +47,6 @@ def printableRadius(rad):
     if np.isinf(rad): return '\u221e' #Unicode infinity symbol
     else: return rad
 
-def highlight_cells(x): #Return dataframe with styling
-    df_ = x.copy()
-    df_.loc[:,:] = ""
-    df_.iloc[-1,-1] = "font-weight: bold"
-    return df_
-
 def normalizeVec(vec):
     return vec/np.linalg.norm(vec)
 
@@ -250,16 +244,6 @@ class Straight(Section):
         textpoint = midpoint + annotationOffset*offset
         #textpoint = self.annotationPoint(p0,annotationOffset)
         plt.annotate(text='{:.0f}'.format(index),xy=(textpoint[0],textpoint[2]),ha='center',va='center')
-    
-    # def annotateTopIndex(self, p0, index, annotationOffset):
-    #     midpoint = p0 + self.getLocalMidpoint()
-    #     offset = rotate2global(unitVector(dim=1),self.csYaw,self.csPitch) #Rotate y axis
-    #     textpoint = midpoint + annotationOffset*offset
-    #     # projectedMidpoint = projectVector(globalMidpoint,dim=0)
-    #     # normalVec = rotate2global(normalizeVec(projectVector(p0,dim=0)-projectVector(globalPoints[1], dim=0)),-np.pi/2,0)
-    #     # textpoint = projectedMidpoint + annotationOffset*normalVec #Adds a perpendicular vector from midpoint by rotating 90 deg
-    #     #textpoint = self.annotationPoint(p0,annotationOffset)
-    #     plt.annotate(text='{:.0f}'.format(index),xy=(textpoint[0],textpoint[1]),ha='center',va='center')
 
 class VerticalBend(Section):
     def __init__(self,isWet,surfType,R,theta_in_deg,theta_out_deg,yaw_in_deg, globalVars):

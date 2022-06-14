@@ -258,8 +258,50 @@ def updateGUIplots(pi):
             plt.gcf().set_dpi(150)
             plt.show()
 
+def highlight_cells(x): #Return dataframe with styling
+    df_ = x.copy()
+    df_.loc[:,:] = ""
+    df_.iloc[-1,-1] = "font-weight: bold"
+    return df_
+
+def styleHTMLtable(df): #https://stackoverflow.com/questions/52104682/rendering-a-pandas-dataframe-as-html-with-same-styling-as-jupyter-notebook
+    styles = [
+        dict(selector=" ", 
+             props=[("margin","0"),
+                    ("font-family",'"Helvetica", "Arial", sans-serif'),
+                    ("border-collapse", "collapse"),
+                    ("border","none"),
+                       ]),
+
+        #background shading
+        dict(selector="tbody tr:nth-child(even)",
+             props=[("background-color", "#fff")]),
+        dict(selector="tbody tr:nth-child(odd)",
+             props=[("background-color", "#eee")]),
+
+        #cell spacing
+        dict(selector="td", 
+             props=[("padding", "0.5em"),
+                    ("text-align", "center")]),
+        
+        dict(selector="tr:last-child td:last-child",
+             props=[("font-weight", "bold")]), #Last cell in bold
+
+        #header cell properties
+        dict(selector="th", 
+             props=[("font-size", "100%"),
+                    ("padding", "0.5em"), #Added for space
+                    ("text-align", "center")]),
+    ]
+    return df.style.set_table_styles(styles, overwrite=False)
+
 def exportTable2HTML(df, filename):
-    df_styled = df.transpose().style.apply(highlight_cells,axis=None) if tableOrientationRB.value==TableOrientation.VERTICAL else df.style.apply(highlight_cells,axis=None)
+    if tableOrientationRB.value==TableOrientation.VERTICAL:
+        #df_styled = df.transpose().style.apply(highlight_cells,axis=None)
+        df_styled = styleHTMLtable(df.transpose())
+    else:
+        #df_styled = df.style.apply(highlight_cells,axis=None)
+        df_styled = styleHTMLtable(df)
     with open(filename, "w",encoding="utf-8") as text_file:
         text_file.write( df_styled.render() )
 
@@ -410,7 +452,7 @@ def exportFiles(obj,pi): #Creates one pdf of desired plots and one HTML object o
     df = generateDataframe(pi) if (units_RB.value==UnitType.METRIC) else generateDataframeWithImperial(pi)
     exportTable2HTML(df, filenameHTML)
     with outPDF: 
-        #if exportTableCB.value: display(create_download_link(filename='table.html',title='Table'))
+        if any([exportSidePlotCB.value,exportTopPlotCB.value,exportTensionPlotCB.value]): display(create_download_link(filenamePDF,title=filenamePDF))
         if exportTableCB.value: display(create_download_link(filename=filenameHTML, title=filenameHTML))
    
 def export2separateFiles(obj,pi): #Creates files separately
@@ -475,7 +517,7 @@ def export2pdf(obj,pi,filename): #TODO: Move to non-callback functions
     #     pp.savefig()
 
     pp.close()
-    with outPDF: display(create_download_link(filename,title=filename))
+    #with outPDF: display(create_download_link(filename,title=filename))
 
 def export2csv(obj,pi):
     with outPDF: clear_output()
