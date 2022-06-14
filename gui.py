@@ -242,7 +242,7 @@ def generateDataframeMetricImperial(pi): #Pandas dataframe
     }
     indices = [i for i in range(1,len(pi.sections)+1)]
     return pd.DataFrame(data=dataDic, index=indices)
-    
+
 def generateDataframeImperialMetric(pi): #Pandas dataframe
     kg2lb = 2.2046 #1 kg to lb
     m2ft = 3.281 #1 m to ft
@@ -553,6 +553,7 @@ def export2pdf(obj,pi,filename): #TODO: Move to non-callback functions
         if arrowCB.value: pi.plotTopArrows()
         if axisEqCB.value: plt.gca().axis('equal')
         else: plt.gca().axis('auto')
+        if annotateCB.value: pi.annotateTop(annotationOffset=annotationOffsetFS.value)
         plt.gcf().set_dpi(300)
         pp.savefig()
 
